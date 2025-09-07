@@ -3,21 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-eval' 'unsafe-inline' https: data: blob:;">
     <title>King of Apes - VIP Login</title>
     <link href="https://fonts.googleapis.com/css2?family=Chewy&display=swap" rel="stylesheet">
-    
-    <!-- Import map for better module resolution -->
-    <script type="importmap">
-    {
-        "imports": {
-            "@reown/appkit": "https://esm.sh/@reown/appkit@1.8.1",
-            "@reown/appkit/networks": "https://esm.sh/@reown/appkit@1.8.1/networks",
-            "@reown/appkit-adapter-wagmi": "https://esm.sh/@reown/appkit-adapter-wagmi@1.8.1"
-        }
-    }
-    </script>
-    
     <style>
         * {
             margin: 0;
@@ -154,7 +141,17 @@
         appkit-button {
             --w3m-color-mix: #ffb400 !important;
             --w3m-accent: #ffb400 !important;
-            margin: 10px;
+            margin: 10px auto;
+            display: block !important;
+            text-align: center;
+        }
+
+        /* Center the wallet section */
+        #wallet-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
         }
 
         @keyframes spin {
