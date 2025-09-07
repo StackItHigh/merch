@@ -11,7 +11,7 @@ import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 const CONFIG = {
     NFT_CONTRACT_ADDRESS: "0xF98082c5978B57AdD900E5544fcaE56AdAA871Fa",
     BASE_CHAIN_ID: 8453,
-    STORE_URL: "/collections/all",
+    STORE_URL: "https://kingofapes.shop",
     SESSION_DURATION: 24
 };
 
@@ -501,17 +501,36 @@ async function checkERC721Balance(rpcUrl, walletAddress) {
 async function checkERC1155Balance(rpcUrl, walletAddress) {
     // For ERC1155, we need to check multiple potential token IDs
     // Common token IDs to check: 0, 1, 2, 3, etc.
-    const tokenIdsToCheck = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const tokenIdsToCheck = [0, 1, 2, 3, 4, 5];
+    
+    const fetchWithTimeout = async (url, options, timeout = 8000) => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
+        
+        try {
+            const response = await fetch(url, {
+                ...options,
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            return response;
+        } catch (error) {
+            clearTimeout(timeoutId);
+            throw error;
+        }
+    };
     
     for (const tokenId of tokenIdsToCheck) {
         try {
+            console.log(`Checking ERC1155 token ID ${tokenId}...`);
+            
             // balanceOf(address,uint256) for ERC1155
             const functionSelector = "0x00fdd58e";
             const paddedAddress = walletAddress.slice(2).padStart(64, "0");
             const paddedTokenId = tokenId.toString(16).padStart(64, "0");
             const data = functionSelector + paddedAddress + paddedTokenId;
 
-            const response = await fetch(rpcUrl, {
+            const response = await fetchWithTimeout(rpcUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -526,15 +545,24 @@ async function checkERC1155Balance(rpcUrl, walletAddress) {
             });
 
             if (!response.ok) {
+                console.log(`Token ID ${tokenId} - HTTP error: ${response.status}`);
                 continue; // Try next token ID
             }
 
             const result = await response.json();
             if (result.error) {
+                console.log(`Token ID ${tokenId} - RPC error:`, result.error.message);
+                continue; // Try next token ID
+            }
+
+            if (!result.result || result.result === "0x") {
+                console.log(`Token ID ${tokenId} - No response`);
                 continue; // Try next token ID
             }
 
             const balance = parseInt(result.result, 16);
+            console.log(`Token ID ${tokenId} balance: ${balance}`);
+            
             if (balance > 0) {
                 console.log(`Found ERC1155 balance of ${balance} for token ID ${tokenId}`);
                 return balance;
@@ -545,7 +573,7 @@ async function checkERC1155Balance(rpcUrl, walletAddress) {
         }
     }
     
-    return 0; // No balance found for any token ID
+    throw new Error("No balance found for any ERC1155 token ID");
 }
 
 function hasValidSession() {
