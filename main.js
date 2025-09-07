@@ -1,7 +1,7 @@
-// ✅ Use official unpkg CDN instead of esm.sh
-import { createAppKit } from "https://unpkg.com/@reown/appkit@1.7.0/dist/index.js"
-import { mainnet, base } from "https://unpkg.com/@reown/appkit@1.7.0/dist/networks.js"
-import { WagmiAdapter } from "https://unpkg.com/@reown/appkit-adapter-wagmi@1.7.0/dist/index.js"
+// ✅ Use esm.sh with ?bundle to fix CORS
+import { createAppKit } from "https://esm.sh/@reown/appkit@1.7.0?bundle"
+import { mainnet, base } from "https://esm.sh/@reown/appkit@1.7.0/networks?bundle"
+import { WagmiAdapter } from "https://esm.sh/@reown/appkit-adapter-wagmi@1.7.0?bundle"
 
 // King of Apes Config
 const CONFIG = {
