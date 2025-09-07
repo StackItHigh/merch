@@ -7,9 +7,6 @@ import { createAppKit } from '@reown/appkit'
 import { mainnet, base } from '@reown/appkit/networks'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 
-// 🔑 Your WalletConnect Project ID
-const projectId = "916c2c0116b80bc0aa50ad643876189b";
-
 // King of Apes Configuration
 const CONFIG = {
     NFT_CONTRACT_ADDRESS: "0xd9B35e260422AC37d2126C49E1Cb178AC4342202",
