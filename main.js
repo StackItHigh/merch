@@ -32,7 +32,7 @@ export const wagmiConfig = wagmiAdapter.wagmiConfig
 
 // 2. Metadata - dynamically set URL based on environment
 const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-const baseUrl = isDevelopment ? window.location.origin : "https://vip.kingofapes.shop";
+const baseUrl = isDevelopment ? window.location.origin : "https://merch-blond-three.vercel.app";
 
 const metadata = {
     name: "King of Apes VIP Gate",
@@ -423,5 +423,30 @@ function showError(message) {
 
 function showSuccess() {
     showSection(successSection);
-    // Remove automatic redirect - let user choose when to enter store
+    
+    // Generate and include access token for store entry
+    const accessToken = generateAccessToken(currentWalletAddress);
+    
+    // Update the "Enter Store Now" button to include the token
+    const enterStoreBtn = document.getElementById('enter-store-btn');
+    if (enterStoreBtn) {
+        enterStoreBtn.onclick = () => {
+            window.location.href = `${CONFIG.STORE_URL}?token=${accessToken}`;
+        };
+    }
+}
+
+// Add token generation function
+function generateAccessToken(walletAddress) {
+    const payload = {
+        wallet: walletAddress,
+        verified: true,
+        exp: Date.now() + (CONFIG.SESSION_DURATION * 60 * 60 * 1000) // 24 hours
+    };
+    
+    // Simple signed token (basic implementation)
+    const token = btoa(JSON.stringify(payload));
+    const signature = btoa(token + "koa-secret-key-2024"); // Use a consistent secret
+    
+    return `${token}.${signature}`;
 }
