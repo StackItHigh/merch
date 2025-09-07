@@ -1,7 +1,6 @@
-// Follow the docs exactly
+// Follow the docs exactly - unified configuration approach
 import { createAppKit } from '@reown/appkit'
 import { mainnet, base } from '@reown/appkit/networks'
-import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 
 // King of Apes Configuration
 const CONFIG = {
@@ -17,23 +16,16 @@ const projectId = '916c2c0116b80bc0aa50ad643876189b'
 // Networks as shown in docs
 export const networks = [base, mainnet]
 
-// 2. Set up Wagmi adapter
-const wagmiAdapter = new WagmiAdapter({
-    projectId,
-    networks
-})
-
 // 3. Configure the metadata
 const metadata = {
     name: 'King of Apes VIP Gate',
     description: 'NFT-gated access to King of Apes store',
-    url: 'https://merch-blond-three.vercel.app',
+    url: 'https://merch-blond-three.vercel.app', // Match actual domain
     icons: ['https://merch-blond-three.vercel.app/koanft.png']
 }
 
-// 4. Create the modal exactly as docs show
+// 4. Create the modal using unified configuration (no manual adapters)
 const modal = createAppKit({
-    adapters: [wagmiAdapter],
     networks,
     metadata,
     projectId,
