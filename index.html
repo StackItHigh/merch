@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>King of Apes - VIP Login</title>
     <link href="https://fonts.googleapis.com/css2?family=Chewy&display=swap" rel="stylesheet">
+    
+    <!-- Import map to resolve bare module imports -->
+    <script type="importmap">
+    {
+        "imports": {
+            "@reown/appkit": "https://esm.sh/@reown/appkit@1.8.1",
+            "@reown/appkit/networks": "https://esm.sh/@reown/appkit@1.8.1/networks"
+        }
+    }
+    </script>
+    
+    <!-- Load AppKit via script tags instead of ES modules -->
+    <script src="https://unpkg.com/@reown/appkit@latest/dist/index.umd.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -68,7 +82,7 @@
             font-size: 1.8em;
             margin-bottom: 20px;
             font-family: 'Chewy', cursive;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            text-shadow: 2px 2px 4px rgba (0, 0, 0, 0.8);
         }
 
         .vip-modal p {
@@ -212,6 +226,29 @@
         </div>
     </div>
 
-    <script type="module" src="main.js"></script>
-</body>
-</html>
+    <script>
+        // Wait for AppKit to load globally
+        window.addEventListener('load', function() {
+            console.log('Window loaded, checking for AppKit...');
+            console.log('AppKit available:', typeof window.AppKit);
+            
+            if (typeof window.AppKit !== 'undefined') {
+                initializeAppKit();
+            } else {
+                console.error('AppKit not loaded');
+                document.getElementById('error-text').textContent = 'Failed to load wallet connection. Please refresh the page.';
+                document.getElementById('error-section').classList.remove('hidden');
+            }
+        });
+
+        function initializeAppKit() {
+            try {
+                // King of Apes Configuration
+                const CONFIG = {
+                    NFT_CONTRACT_ADDRESS: "0xd9B35e260422AC37d2126C49E1Cb178AC4342202",
+                    BASE_CHAIN_ID: 8453,
+                    STORE_URL: "/collections/all",
+                    SESSION_DURATION: 24
+                };
+
+                const projectId = '916c2c0116b80bc0
