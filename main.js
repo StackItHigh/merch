@@ -1,7 +1,7 @@
-// Follow the docs exactly
-import { createAppKit } from '@reown/appkit'
-import { mainnet, base } from '@reown/appkit/networks'
-import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
+// Use CDN imports that browsers can resolve
+import { createAppKit } from 'https://esm.sh/@reown/appkit@1.8.1'
+import { mainnet, base } from 'https://esm.sh/@reown/appkit@1.8.1/networks'
+import { WagmiAdapter } from 'https://esm.sh/@reown/appkit-adapter-wagmi@1.8.1'
 
 // King of Apes Configuration
 const CONFIG = {
