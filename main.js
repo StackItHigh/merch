@@ -1,11 +1,6 @@
-console.log('JavaScript file loaded!')
-
-// Use the import map defined in HTML
+// Follow the docs exactly - unified configuration approach
 import { createAppKit } from '@reown/appkit'
 import { mainnet, base } from '@reown/appkit/networks'
-import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
-
-console.log('Imports successful!')
 
 // King of Apes Configuration
 const CONFIG = {
@@ -18,16 +13,10 @@ const CONFIG = {
 // 1. Get project ID from Reown Dashboard
 const projectId = '916c2c0116b80bc0aa50ad643876189b'
 
-// 2. Set the networks - Base first since your NFT is on Base
-const networks = [base, mainnet]
+// Networks as shown in docs
+export const networks = [base, mainnet]
 
-// 3. Set up Wagmi adapter
-const wagmiAdapter = new WagmiAdapter({
-    projectId,
-    networks
-})
-
-// 4. Configure the metadata
+// 3. Configure the metadata
 const metadata = {
     name: 'King of Apes VIP Gate',
     description: 'NFT-gated access to King of Apes store',
@@ -35,9 +24,8 @@ const metadata = {
     icons: ['https://vip.kingofapes.shop/koanft.png']
 }
 
-// 5. Create the modal using the unified configuration
+// 4. Create the modal using unified configuration (no manual adapters)
 const modal = createAppKit({
-    adapters: [wagmiAdapter],
     networks,
     metadata,
     projectId,
