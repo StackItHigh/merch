@@ -1,11 +1,13 @@
 // ✅ Fix missing peer dependencies for AppKit Wagmi adapter
 import "https://esm.sh/wagmi@2.5.7?bundle"
 import "https://esm.sh/viem@2.9.8?bundle"
+import "https://esm.sh/@wagmi/connectors@2.5.7?bundle"
 
 // ✅ Reown AppKit & Wagmi adapter
 import { createAppKit } from "https://esm.sh/@reown/appkit@1.7.0?bundle"
 import { mainnet, base } from "https://esm.sh/@reown/appkit@1.7.0/networks?bundle"
 import { WagmiAdapter } from "https://esm.sh/@reown/appkit-adapter-wagmi@1.7.0?bundle"
+
 
 // King of Apes Configuration
 const CONFIG = {
