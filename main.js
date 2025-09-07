@@ -500,25 +500,8 @@ async function checkERC721Balance(rpcUrl, walletAddress) {
 // ERC1155 balance check (requires token ID)
 async function checkERC1155Balance(rpcUrl, walletAddress) {
     // For ERC1155, we need to check multiple potential token IDs
-    // Common token IDs to check: 0, 1, 2, 3, etc.
-    const tokenIdsToCheck = [0, 1, 2, 3, 4, 5];
-    
-    const fetchWithTimeout = async (url, options, timeout = 8000) => {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), timeout);
-        
-        try {
-            const response = await fetch(url, {
-                ...options,
-                signal: controller.signal
-            });
-            clearTimeout(timeoutId);
-            return response;
-        } catch (error) {
-            clearTimeout(timeoutId);
-            throw error;
-        }
-    };
+    // Start with most common token IDs: 1, 0, 2, 3
+    const tokenIdsToCheck = [1, 0, 2, 3];
     
     for (const tokenId of tokenIdsToCheck) {
         try {
@@ -530,7 +513,9 @@ async function checkERC1155Balance(rpcUrl, walletAddress) {
             const paddedTokenId = tokenId.toString(16).padStart(64, "0");
             const data = functionSelector + paddedAddress + paddedTokenId;
 
-            const response = await fetchWithTimeout(rpcUrl, {
+            console.log(`Making ERC1155 call to ${CONFIG.NFT_CONTRACT_ADDRESS} for token ID ${tokenId}`);
+
+            const response = await fetch(rpcUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -550,6 +535,8 @@ async function checkERC1155Balance(rpcUrl, walletAddress) {
             }
 
             const result = await response.json();
+            console.log(`Token ID ${tokenId} RPC response:`, result);
+            
             if (result.error) {
                 console.log(`Token ID ${tokenId} - RPC error:`, result.error.message);
                 continue; // Try next token ID
@@ -564,7 +551,7 @@ async function checkERC1155Balance(rpcUrl, walletAddress) {
             console.log(`Token ID ${tokenId} balance: ${balance}`);
             
             if (balance > 0) {
-                console.log(`Found ERC1155 balance of ${balance} for token ID ${tokenId}`);
+                console.log(`✅ Found ERC1155 balance of ${balance} for token ID ${tokenId}`);
                 return balance;
             }
         } catch (error) {
