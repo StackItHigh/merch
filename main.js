@@ -27,12 +27,18 @@ const wagmiAdapter = new WagmiAdapter({
     networks
 })
 
-// 2. Metadata
+// Get wagmi config for proper connection handling
+export const wagmiConfig = wagmiAdapter.wagmiConfig
+
+// 2. Metadata - dynamically set URL based on environment
+const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const baseUrl = isDevelopment ? window.location.origin : "https://merch-blond-three.vercel.app";
+
 const metadata = {
     name: "King of Apes VIP Gate",
     description: "NFT-gated access to King of Apes store",
-    url: "https://merch-blond-three.vercel.app",
-    icons: ["https://merch-blond-three.vercel.app/koanft.png"]
+    url: baseUrl,
+    icons: [`${baseUrl}/koanft.png`]
 }
 
 // 3. Create AppKit modal
@@ -42,17 +48,7 @@ const modal = createAppKit({
     metadata,
     projectId,
     features: {
-        analytics: true
-    },
-    connectors: {
-        coinbaseWallet: false,   // 🚫 disable broken Coinbase import
-        walletConnect: {
-            projectId,           // ✅ required for WalletConnect QR
-            showQrModal: true
-        },
-        injected: {              // ✅ enables MetaMask / Brave / Rabby
-            shimDisconnect: true
-        }
+        analytics: true // Optional - defaults to your Cloud configuration
     }
 })
 
@@ -69,6 +65,13 @@ const enterStoreBtn = document.getElementById("enter-store-btn");
 const statusText = document.getElementById("status-text");
 const errorText = document.getElementById("error-text");
 const walletInfo = document.getElementById("wallet-info");
+const connectWalletBtn = document.getElementById("connect-wallet-btn");
+const connectedActions = document.getElementById("connected-actions");
+const successDisconnectBtn = document.getElementById("success-disconnect-btn");
+const verifyNftBtn = document.getElementById("verify-nft-btn");
+const sessionActions = document.getElementById("session-actions");
+const enterStoreFromSessionBtn = document.getElementById("enter-store-from-session-btn");
+const clearSessionBtn = document.getElementById("clear-session-btn");
 
 let currentWalletAddress = null;
 
@@ -80,44 +83,199 @@ retryBtn?.addEventListener("click", () => {
 });
 enterStoreBtn?.addEventListener("click", () => window.location.href = CONFIG.STORE_URL);
 
-// Check session on load
-window.addEventListener("load", () => {
-    console.log("Page loaded, checking session...");
-    if (hasValidSession()) {
-        showSuccess();
+// Connect wallet button
+connectWalletBtn?.addEventListener("click", async () => {
+    console.log("Connect wallet button clicked - forcing connection view...");
+    
+    // Force clear ALL AppKit state
+    try {
+        await modal.disconnect();
+        console.log("Disconnected from modal");
+        
+        // Clear localStorage that AppKit might be using
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && (key.includes('wagmi') || key.includes('appkit') || key.includes('walletconnect') || key.includes('w3m'))) {
+                keysToRemove.push(key);
+            }
+        }
+        keysToRemove.forEach(key => {
+            localStorage.removeItem(key);
+            console.log("Removed localStorage key:", key);
+        });
+        
+    } catch (error) {
+        console.log("Error clearing state:", error);
+    }
+    
+    // Force open in connection mode with specific view
+    setTimeout(() => {
+        try {
+            modal.open({ view: 'Connect' });
+            console.log("Opened modal in Connect view");
+        } catch (error) {
+            console.log("Connect view failed, trying default open");
+            modal.open();
+        }
+    }, 200);
+});
+
+// Success screen disconnect button
+successDisconnectBtn?.addEventListener("click", () => {
+    console.log("Disconnecting from success screen...");
+    disconnectWallet();
+});
+
+// Manual NFT verification button
+verifyNftBtn?.addEventListener("click", async () => {
+    const address = modal.getAddress();
+    if (address) {
+        console.log("Manual NFT verification requested");
+        await handleWalletConnection(address);
+    } else {
+        showError("Please connect your wallet first");
     }
 });
 
-// Listen to AppKit state changes
+// Session management buttons
+enterStoreFromSessionBtn?.addEventListener("click", () => {
+    window.location.href = CONFIG.STORE_URL;
+});
+
+clearSessionBtn?.addEventListener("click", () => {
+    localStorage.removeItem("nft_verification");
+    resetToWalletSection();
+    console.log("Session cleared");
+});
+
+
+// Check session and wallet connection on load
+window.addEventListener("load", async () => {
+    console.log("Page loaded, checking session and wallet...");
+    
+    // Give AppKit time to initialize
+    setTimeout(async () => {
+        const address = modal.getAddress();
+        const isConnected = modal.getIsConnected?.() || false;
+        console.log("Load check - AppKit address:", address);
+        console.log("Load check - AppKit connected:", isConnected);
+        
+        // If there's an address but not connected, clear the stale state
+        if (address && !isConnected) {
+            console.log("Found stale wallet data, clearing...");
+            try {
+                await modal.disconnect();
+                console.log("Cleared stale wallet state");
+            } catch (error) {
+                console.log("Error clearing stale state:", error);
+            }
+        }
+        
+        if (address && isConnected) {
+            console.log("Found REAL wallet connection on load:", address);
+            handleWalletConnection(address);
+        } else if (hasValidSession()) {
+            console.log("Valid session found, showing session options");
+            showSessionOptions();
+        } else {
+            console.log("No real wallet connection found on load - showing connect button");
+            resetWalletDisplay();
+            resetToWalletSection();
+        }
+    }, 1500); // Give AppKit more time to initialize
+});
+
+// Listen to AppKit state changes properly
 modal.subscribeState((state) => {
     console.log("AppKit state changed:", state);
+    
+    const address = modal.getAddress();
+    const isConnected = modal.getIsConnected?.() || false;
+    
+    console.log("State change - Address:", address);
+    console.log("State change - Connected:", isConnected);
+    console.log("Stored currentWalletAddress:", currentWalletAddress);
 
-    // If wallet connected
-    if (state.selectedNetworkId && modal.getAccount()?.address) {
-        const address = modal.getAccount().address;
-        if (address && address !== currentWalletAddress) {
-            handleWalletConnection(address);
-        }
+    // Handle connection - if we have an address, assume connected (AppKit bug with isConnected)
+    if (address && address !== currentWalletAddress) {
+        console.log("New wallet connected via AppKit (address detected):", address);
+        handleWalletConnection(address);
     }
-
-    // If disconnected
-    if (!modal.getAccount()?.address && currentWalletAddress) {
+    
+    // Handle disconnection
+    if (!address && currentWalletAddress) {
+        console.log("Wallet disconnected, resetting UI");
         currentWalletAddress = null;
         resetWalletDisplay();
         resetToWalletSection();
     }
+    
+    // Check for connection when modal closes
+    if (state.open === false && address && !currentWalletAddress) {
+        console.log("Modal closed, checking for new connection...");
+        setTimeout(() => {
+            const finalAddress = modal.getAddress();
+            const finalConnected = modal.getIsConnected?.() || false;
+            console.log("Final check - Address:", finalAddress, "Connected:", finalConnected);
+            
+            if (finalAddress && finalAddress !== currentWalletAddress) {
+                console.log("Found connection after modal close:", finalAddress);
+                handleWalletConnection(finalAddress);
+            }
+        }, 1000);
+    }
 });
+
+// Also listen to wagmi account changes for more reliable detection
+try {
+    wagmiConfig.subscribe(
+        (state) => state.current,
+        (account) => {
+            console.log("Wagmi account changed:", account);
+            console.log("Account isConnected:", account?.isConnected);
+            console.log("Account address:", account?.address);
+            
+            // Give a small delay for state to settle
+            setTimeout(() => {
+                const modalAddress = modal.getAddress();
+                const modalConnected = modal.getIsConnected?.() || false;
+                
+                console.log("Post-change check - Modal address:", modalAddress);
+                console.log("Post-change check - Modal connected:", modalConnected);
+                
+                if (account?.address && account.address !== currentWalletAddress) {
+                    console.log("Wagmi detected NEW CONNECTION:", account.address);
+                    handleWalletConnection(account.address);
+                } else if (modalAddress && modalAddress !== currentWalletAddress) {
+                    console.log("Modal detected NEW CONNECTION:", modalAddress);
+                    handleWalletConnection(modalAddress);
+                } else if (!account?.address && !modalAddress && currentWalletAddress) {
+                    console.log("Wagmi detected disconnection");
+                    currentWalletAddress = null;
+                    resetWalletDisplay();
+                    resetToWalletSection();
+                }
+            }, 500); // Give state time to settle
+        }
+    );
+} catch (error) {
+    console.log("Wagmi subscription setup failed:", error);
+}
 
 async function handleWalletConnection(walletAddress) {
     if (!walletAddress) return;
 
     currentWalletAddress = walletAddress;
 
-    // Show wallet info + disconnect
+    // Show wallet info and connected actions
     const shortAddress = `${walletAddress.substring(0, 6)}...${walletAddress.substring(38)}`;
     walletInfo.textContent = `Connected: ${shortAddress}`;
     walletInfo.classList.remove("hidden");
-    disconnectBtn.classList.remove("hidden");
+    
+    // Hide connect button, show verify/disconnect/switch buttons
+    connectWalletBtn.classList.add("hidden");
+    connectedActions.classList.remove("hidden");
 
     showStatus("Connected! Checking network...");
 
@@ -128,7 +286,7 @@ async function handleWalletConnection(walletAddress) {
     if (currentChain !== CONFIG.BASE_CHAIN_ID) {
         showStatus("Please switch to Base network...");
         try {
-            await modal.switchNetwork(CONFIG.BASE_CHAIN_ID);
+            await modal.switchActiveNetwork(CONFIG.BASE_CHAIN_ID);
         } catch (error) {
             console.error("Network switch error:", error);
             showError("Please manually switch to Base network and try again.");
@@ -136,8 +294,8 @@ async function handleWalletConnection(walletAddress) {
         }
     }
 
-    showStatus("Verifying NFT ownership...");
-    await checkNFTOwnership(walletAddress);
+    // Don't auto-verify - let user click "Verify NFT Ownership" button
+    resetToWalletSection();
 }
 
 function disconnectWallet() {
@@ -155,52 +313,85 @@ function disconnectWallet() {
 
 function resetWalletDisplay() {
     walletInfo.classList.add("hidden");
-    disconnectBtn.classList.add("hidden");
+    connectedActions.classList.add("hidden");
+    sessionActions.classList.add("hidden");
+    connectWalletBtn.classList.remove("hidden");
+}
+
+function showSessionOptions() {
+    connectWalletBtn.classList.add("hidden");
+    connectedActions.classList.add("hidden");
+    sessionActions.classList.remove("hidden");
 }
 
 async function checkNFTOwnership(walletAddress) {
-    try {
-        const rpcUrl = "https://mainnet.base.org";
+    // Multiple RPC endpoints to avoid rate limiting
+    const rpcUrls = [
+        "https://base.llamarpc.com",
+        "https://base.blockpi.network/v1/rpc/public",
+        "https://mainnet.base.org",
+        "https://base-rpc.publicnode.com",
+        "https://1rpc.io/base"
+    ];
 
-        // balanceOf(address)
-        const functionSelector = "0x70a08231";
-        const paddedAddress = walletAddress.slice(2).padStart(64, "0");
-        const data = functionSelector + paddedAddress;
+    // balanceOf(address)
+    const functionSelector = "0x70a08231";
+    const paddedAddress = walletAddress.slice(2).padStart(64, "0");
+    const data = functionSelector + paddedAddress;
 
-        const response = await fetch(rpcUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                jsonrpc: "2.0",
-                method: "eth_call",
-                params: [{
-                    to: CONFIG.NFT_CONTRACT_ADDRESS,
-                    data
-                }, "latest"],
-                id: 1
-            })
-        });
+    for (let i = 0; i < rpcUrls.length; i++) {
+        try {
+            console.log(`Trying RPC endpoint ${i + 1}/${rpcUrls.length}: ${rpcUrls[i]}`);
+            
+            const response = await fetch(rpcUrls[i], {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    jsonrpc: "2.0",
+                    method: "eth_call",
+                    params: [{
+                        to: CONFIG.NFT_CONTRACT_ADDRESS,
+                        data
+                    }, "latest"],
+                    id: 1
+                })
+            });
 
-        const result = await response.json();
-        if (result.error) throw new Error(result.error.message);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
 
-        const balance = parseInt(result.result, 16);
-        console.log("NFT balance:", balance);
+            const result = await response.json();
+            if (result.error) {
+                throw new Error(result.error.message);
+            }
 
-        if (balance > 0) {
-            const verification = {
-                walletAddress,
-                timestamp: Date.now(),
-                expiresAt: Date.now() + (CONFIG.SESSION_DURATION * 60 * 60 * 1000)
-            };
-            localStorage.setItem("nft_verification", JSON.stringify(verification));
-            showSuccess();
-        } else {
-            showError("No King of Apes NFT found in your wallet.");
+            const balance = parseInt(result.result, 16);
+            console.log("NFT balance:", balance);
+
+            if (balance > 0) {
+                const verification = {
+                    walletAddress,
+                    timestamp: Date.now(),
+                    expiresAt: Date.now() + (CONFIG.SESSION_DURATION * 60 * 60 * 1000)
+                };
+                localStorage.setItem("nft_verification", JSON.stringify(verification));
+                showSuccess();
+                return; // Success, exit function
+            } else {
+                showError("No King of Apes NFT found in your wallet.");
+                return; // No NFT found, exit function
+            }
+        } catch (error) {
+            console.error(`RPC endpoint ${i + 1} failed:`, error.message);
+            
+            // If this is the last endpoint, show error
+            if (i === rpcUrls.length - 1) {
+                console.error("All RPC endpoints failed");
+                showError("Unable to verify NFT ownership. Please try again later.");
+            }
+            // Otherwise, continue to next endpoint
         }
-    } catch (error) {
-        console.error("NFT verification error:", error);
-        showError(`Failed to verify NFT ownership: ${error.message}`);
     }
 }
 
@@ -243,5 +434,5 @@ function showError(message) {
 
 function showSuccess() {
     showSection(successSection);
-    setTimeout(() => window.location.href = CONFIG.STORE_URL, 3000);
+    // Remove automatic redirect - let user choose when to enter store
 }

@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>King of Apes - VIP Login</title>
+  <link rel="icon" type="image/png" href="/koanft.png" />
   <link href="https://fonts.googleapis.com/css2?family=Chewy&display=swap" rel="stylesheet" />
   <style>
     * {
@@ -28,7 +29,34 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 99999;
+      z-index: 1000;
+    }
+    
+    /* Ensure AppKit modal appears above everything */
+    w3m-modal, appkit-modal, [data-w3m-modal] {
+      z-index: 999999 !important;
+    }
+    
+    /* AppKit overlay styling */
+    w3m-modal::part(overlay),
+    appkit-modal::part(overlay) {
+      z-index: 999998 !important;
+    }
+    
+    /* Force AppKit modal visibility */
+    w3m-modal[open], appkit-modal[open] {
+      display: block !important;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      z-index: 999999 !important;
+    }
+    
+    /* AppKit router container */
+    w3m-router-container, appkit-router-container {
+      z-index: 999999 !important;
     }
     .vip-modal {
       background: transparent;
@@ -86,7 +114,21 @@
       opacity: 0.6;
       cursor: not-allowed;
     }
-    .disconnect-btn { background: #666 !important; }
+    .disconnect-btn { 
+      background: linear-gradient(45deg, #ff4444 0%, #cc3333 100%) !important; 
+      color: white !important;
+    }
+    .disconnect-btn:hover {
+      background: linear-gradient(45deg, #cc3333 0%, #ff4444 100%) !important;
+    }
+    
+    #connected-actions, #success-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 15px;
+    }
     .error-message {
       color: #ff4444;
       background: rgba(255, 68, 68, 0.1);
@@ -110,11 +152,6 @@
       margin-bottom: 20px;
       font-size: 0.9em;
     }
-    appkit-button {
-      --w3m-color-mix: #ffb400 !important;
-      --w3m-accent: #ffb400 !important;
-      margin: 10px;
-    }
     @keyframes spin { 0%{transform:rotate(0deg);}100%{transform:rotate(360deg);} }
     .hidden { display: none !important; }
     @media (max-width: 768px) {
@@ -134,9 +171,17 @@
       </div>
       <p>You must own a King of Apes NFT to access this exclusive store.</p>
       <div id="wallet-section">
-        <appkit-button></appkit-button>
+        <button id="connect-wallet-btn" class="vip-button">Connect Wallet</button>
         <div id="wallet-info" class="wallet-info hidden"></div>
-        <button id="disconnect-btn" class="vip-button disconnect-btn hidden">Disconnect & Try Again</button>
+        <div id="connected-actions" class="hidden">
+          <button id="verify-nft-btn" class="vip-button">Verify NFT Ownership</button>
+          <button id="disconnect-btn" class="vip-button disconnect-btn">Disconnect Wallet</button>
+        </div>
+        <div id="session-actions" class="hidden">
+          <p class="wallet-info">You have a valid session</p>
+          <button id="enter-store-from-session-btn" class="vip-button">Enter Store</button>
+          <button id="clear-session-btn" class="vip-button disconnect-btn">Clear Session</button>
+        </div>
       </div>
       <div id="status-section" class="hidden">
         <p id="status-text">Checking NFT ownership...</p>
@@ -149,7 +194,10 @@
       <div id="success-section" class="hidden">
         <h2>Welcome, King of Apes holder!</h2>
         <p>Access granted! Redirecting to store...</p>
-        <button id="enter-store-btn" class="vip-button">Enter Store Now</button>
+        <div id="success-actions">
+          <button id="enter-store-btn" class="vip-button">Enter Store Now</button>
+          <button id="success-disconnect-btn" class="vip-button disconnect-btn">Disconnect & Exit</button>
+        </div>
       </div>
     </div>
   </div>
