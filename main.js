@@ -131,8 +131,9 @@ successDisconnectBtn?.addEventListener("click", () => {
 verifyNftBtn?.addEventListener("click", async () => {
     const address = modal.getAddress();
     if (address) {
-        console.log("Manual NFT verification requested");
-        await handleWalletConnection(address);
+        console.log("Manual NFT verification requested for address:", address);
+        showStatus("Verifying NFT ownership...");
+        await checkNFTOwnership(address);
     } else {
         showError("Please connect your wallet first");
     }
