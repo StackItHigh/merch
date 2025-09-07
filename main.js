@@ -1,7 +1,7 @@
-// Use CDN imports that browsers can resolve
-import { createAppKit } from 'https://esm.sh/@reown/appkit@1.8.1'
-import { mainnet, base } from 'https://esm.sh/@reown/appkit@1.8.1/networks'
-import { WagmiAdapter } from 'https://esm.sh/@reown/appkit-adapter-wagmi@1.8.1'
+// Use CDN imports with a more stable version
+import { createAppKit } from 'https://esm.sh/@reown/appkit@1.7.0'
+import { mainnet, base } from 'https://esm.sh/@reown/appkit@1.7.0/networks'
+import { WagmiAdapter } from 'https://esm.sh/@reown/appkit-adapter-wagmi@1.7.0'
 
 // King of Apes Configuration
 const CONFIG = {
