@@ -8,7 +8,6 @@ import { createAppKit } from "https://esm.sh/@reown/appkit@1.7.0?bundle"
 import { mainnet, base } from "https://esm.sh/@reown/appkit@1.7.0/networks?bundle"
 import { WagmiAdapter } from "https://esm.sh/@reown/appkit-adapter-wagmi@1.7.0?bundle"
 
-
 // King of Apes Configuration
 const CONFIG = {
     NFT_CONTRACT_ADDRESS: "0xd9B35e260422AC37d2126C49E1Cb178AC4342202",
