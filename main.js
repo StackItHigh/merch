@@ -9,7 +9,7 @@ import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 
 // King of Apes Configuration
 const CONFIG = {
-    NFT_CONTRACT_ADDRESS: "0xd9B35e260422AC37d2126C49E1Cb178AC4342202",
+    NFT_CONTRACT_ADDRESS: "0xF98082c5978B57AdD900E5544fcaE56AdAA871Fa",
     BASE_CHAIN_ID: 8453,
     STORE_URL: "/collections/all",
     SESSION_DURATION: 24
@@ -324,6 +324,7 @@ function showSessionOptions() {
     sessionActions.classList.remove("hidden");
 }
 
+// Enhanced NFT ownership verification function
 async function checkNFTOwnership(walletAddress) {
     // Multiple RPC endpoints to avoid rate limiting
     const rpcUrls = [
@@ -334,16 +335,182 @@ async function checkNFTOwnership(walletAddress) {
         "https://1rpc.io/base"
     ];
 
-    // balanceOf(address)
-    const functionSelector = "0x70a08231";
-    const paddedAddress = walletAddress.slice(2).padStart(64, "0");
-    const data = functionSelector + paddedAddress;
+    // First, try to detect if it's ERC721 or ERC1155 by checking contract interface
+    async function detectContractType(rpcUrl) {
+        // Check if contract supports ERC721 interface (0x80ac58cd)
+        const erc721InterfaceId = "0x01ffc9a7"; // supportsInterface
+        const erc721Signature = "0x80ac58cd"; // ERC721 interface ID
+        
+        // supportsInterface(bytes4)
+        const functionSelector = "0x01ffc9a7";
+        const paddedInterfaceId = erc721Signature.slice(2).padStart(64, "0");
+        const data = functionSelector + paddedInterfaceId;
+
+        try {
+            const response = await fetch(rpcUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    jsonrpc: "2.0",
+                    method: "eth_call",
+                    params: [{
+                        to: CONFIG.NFT_CONTRACT_ADDRESS,
+                        data
+                    }, "latest"],
+                    id: 1
+                })
+            });
+
+            const result = await response.json();
+            if (result.result) {
+                const supportsERC721 = parseInt(result.result, 16) === 1;
+                return supportsERC721 ? "ERC721" : "ERC1155";
+            }
+        } catch (error) {
+            console.log("Interface detection failed, trying both standards");
+        }
+        
+        return "UNKNOWN";
+    }
 
     for (let i = 0; i < rpcUrls.length; i++) {
         try {
             console.log(`Trying RPC endpoint ${i + 1}/${rpcUrls.length}: ${rpcUrls[i]}`);
             
-            const response = await fetch(rpcUrls[i], {
+            // Try to detect contract type first
+            const contractType = await detectContractType(rpcUrls[i]);
+            console.log("Detected contract type:", contractType);
+
+            let balance = 0;
+
+            if (contractType === "ERC721" || contractType === "UNKNOWN") {
+                // Try ERC721 balanceOf first
+                try {
+                    balance = await checkERC721Balance(rpcUrls[i], walletAddress);
+                    console.log("ERC721 NFT balance:", balance);
+                    
+                    if (balance > 0) {
+                        const verification = {
+                            walletAddress,
+                            timestamp: Date.now(),
+                            expiresAt: Date.now() + (CONFIG.SESSION_DURATION * 60 * 60 * 1000)
+                        };
+                        localStorage.setItem("nft_verification", JSON.stringify(verification));
+                        showSuccess();
+                        return;
+                    }
+                } catch (erc721Error) {
+                    console.log("ERC721 check failed:", erc721Error.message);
+                    
+                    if (contractType === "UNKNOWN") {
+                        // If ERC721 failed and we don't know the type, try ERC1155
+                        console.log("Trying ERC1155 as fallback...");
+                        try {
+                            balance = await checkERC1155Balance(rpcUrls[i], walletAddress);
+                            console.log("ERC1155 NFT balance:", balance);
+                            
+                            if (balance > 0) {
+                                const verification = {
+                                    walletAddress,
+                                    timestamp: Date.now(),
+                                    expiresAt: Date.now() + (CONFIG.SESSION_DURATION * 60 * 60 * 1000)
+                                };
+                                localStorage.setItem("nft_verification", JSON.stringify(verification));
+                                showSuccess();
+                                return;
+                            }
+                        } catch (erc1155Error) {
+                            console.log("ERC1155 check also failed:", erc1155Error.message);
+                            throw new Error("Both ERC721 and ERC1155 checks failed");
+                        }
+                    } else {
+                        throw erc721Error;
+                    }
+                }
+            } else if (contractType === "ERC1155") {
+                // Try ERC1155 balanceOf
+                balance = await checkERC1155Balance(rpcUrls[i], walletAddress);
+                console.log("ERC1155 NFT balance:", balance);
+                
+                if (balance > 0) {
+                    const verification = {
+                        walletAddress,
+                        timestamp: Date.now(),
+                        expiresAt: Date.now() + (CONFIG.SESSION_DURATION * 60 * 60 * 1000)
+                    };
+                    localStorage.setItem("nft_verification", JSON.stringify(verification));
+                    showSuccess();
+                    return;
+                }
+            }
+
+            // If we get here, no NFTs were found
+            if (balance === 0) {
+                showError("No King of Apes NFT found in your wallet. Make sure you're on the correct network (Base) and own the NFT.");
+                return;
+            }
+
+        } catch (error) {
+            console.error(`RPC endpoint ${i + 1} failed:`, error.message);
+            
+            // If this is the last endpoint, show error
+            if (i === rpcUrls.length - 1) {
+                console.error("All RPC endpoints failed");
+                showError("Unable to verify NFT ownership. Please try again later or contact support.");
+            }
+            // Otherwise, continue to next endpoint
+        }
+    }
+}
+
+// ERC721 balance check
+async function checkERC721Balance(rpcUrl, walletAddress) {
+    // balanceOf(address) for ERC721
+    const functionSelector = "0x70a08231";
+    const paddedAddress = walletAddress.slice(2).padStart(64, "0");
+    const data = functionSelector + paddedAddress;
+
+    const response = await fetch(rpcUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            jsonrpc: "2.0",
+            method: "eth_call",
+            params: [{
+                to: CONFIG.NFT_CONTRACT_ADDRESS,
+                data
+            }, "latest"],
+            id: 1
+        })
+    });
+
+    if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    if (result.error) {
+        throw new Error(result.error.message);
+    }
+
+    return parseInt(result.result, 16);
+}
+
+// ERC1155 balance check (requires token ID)
+async function checkERC1155Balance(rpcUrl, walletAddress) {
+    // For ERC1155, we need to check multiple potential token IDs
+    // Common token IDs to check: 0, 1, 2, 3, etc.
+    const tokenIdsToCheck = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    
+    for (const tokenId of tokenIdsToCheck) {
+        try {
+            // balanceOf(address,uint256) for ERC1155
+            const functionSelector = "0x00fdd58e";
+            const paddedAddress = walletAddress.slice(2).padStart(64, "0");
+            const paddedTokenId = tokenId.toString(16).padStart(64, "0");
+            const data = functionSelector + paddedAddress + paddedTokenId;
+
+            const response = await fetch(rpcUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -358,41 +525,26 @@ async function checkNFTOwnership(walletAddress) {
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                continue; // Try next token ID
             }
 
             const result = await response.json();
             if (result.error) {
-                throw new Error(result.error.message);
+                continue; // Try next token ID
             }
 
             const balance = parseInt(result.result, 16);
-            console.log("NFT balance:", balance);
-
             if (balance > 0) {
-                const verification = {
-                    walletAddress,
-                    timestamp: Date.now(),
-                    expiresAt: Date.now() + (CONFIG.SESSION_DURATION * 60 * 60 * 1000)
-                };
-                localStorage.setItem("nft_verification", JSON.stringify(verification));
-                showSuccess();
-                return; // Success, exit function
-            } else {
-                showError("No King of Apes NFT found in your wallet.");
-                return; // No NFT found, exit function
+                console.log(`Found ERC1155 balance of ${balance} for token ID ${tokenId}`);
+                return balance;
             }
         } catch (error) {
-            console.error(`RPC endpoint ${i + 1} failed:`, error.message);
-            
-            // If this is the last endpoint, show error
-            if (i === rpcUrls.length - 1) {
-                console.error("All RPC endpoints failed");
-                showError("Unable to verify NFT ownership. Please try again later.");
-            }
-            // Otherwise, continue to next endpoint
+            console.log(`Token ID ${tokenId} check failed:`, error.message);
+            continue; // Try next token ID
         }
     }
+    
+    return 0; // No balance found for any token ID
 }
 
 function hasValidSession() {
