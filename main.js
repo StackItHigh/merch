@@ -1,253 +1,184 @@
-// Use CDN imports with a more stable version
-import { createAppKit } from 'https://esm.sh/@reown/appkit@1.7.0'
-import { mainnet, base } from 'https://esm.sh/@reown/appkit@1.7.0/networks'
-import { WagmiAdapter } from 'https://esm.sh/@reown/appkit-adapter-wagmi@1.7.0'
+// ✅ Use official unpkg CDN instead of esm.sh
+import { createAppKit } from "https://unpkg.com/@reown/appkit@1.7.0/dist/index.js"
+import { mainnet, base } from "https://unpkg.com/@reown/appkit@1.7.0/dist/networks.js"
+import { WagmiAdapter } from "https://unpkg.com/@reown/appkit-adapter-wagmi@1.7.0/dist/index.js"
 
-// King of Apes Configuration
+// King of Apes Config
 const CONFIG = {
-    NFT_CONTRACT_ADDRESS: "0xd9B35e260422AC37d2126C49E1Cb178AC4342202",
-    BASE_CHAIN_ID: 8453,
-    STORE_URL: "/collections/all",
-    SESSION_DURATION: 24
-};
-
-// 1. Get project ID from Reown Dashboard
-const projectId = '916c2c0116b80bc0aa50ad643876189b'
-
-// Networks as shown in docs
-export const networks = [base, mainnet]
-
-// 2. Set up Wagmi adapter
-const wagmiAdapter = new WagmiAdapter({
-    projectId,
-    networks
-})
-
-// 3. Configure the metadata
-const metadata = {
-    name: 'King of Apes VIP Gate',
-    description: 'NFT-gated access to King of Apes store',
-    url: 'https://merch-blond-three.vercel.app',
-    icons: ['https://merch-blond-three.vercel.app/koanft.png']
+  NFT_CONTRACT_ADDRESS: "0xd9B35e260422AC37d2126C49E1Cb178AC4342202",
+  BASE_CHAIN_ID: 8453,
+  STORE_URL: "/collections/all",
+  SESSION_DURATION: 24
 }
 
-// 4. Create the modal exactly as docs show
+// Project ID from Reown Dashboard
+const projectId = "916c2c0116b80bc0aa50ad643876189b"
+
+// Networks
+export const networks = [base, mainnet]
+
+// Wagmi Adapter
+const wagmiAdapter = new WagmiAdapter({ projectId, networks })
+
+// Metadata
+const metadata = {
+  name: "King of Apes VIP Gate",
+  description: "NFT-gated access to King of Apes store",
+  url: "https://merch-blond-three.vercel.app",
+  icons: ["https://merch-blond-three.vercel.app/koanft.png"]
+}
+
+// Create modal
 const modal = createAppKit({
-    adapters: [wagmiAdapter],
-    networks,
-    metadata,
-    projectId,
-    features: {
-        analytics: true
-    }
+  adapters: [wagmiAdapter],
+  networks,
+  metadata,
+  projectId,
+  features: { analytics: true }
 })
 
-console.log('AppKit initialized:', modal)
+console.log("AppKit initialized:", modal)
 
-// DOM elements
-const walletSection = document.getElementById('wallet-section');
-const statusSection = document.getElementById('status-section');
-const errorSection = document.getElementById('error-section');
-const successSection = document.getElementById('success-section');
-const disconnectBtn = document.getElementById('disconnect-btn');
-const retryBtn = document.getElementById('retry-btn');
-const enterStoreBtn = document.getElementById('enter-store-btn');
-const statusText = document.getElementById('status-text');
-const errorText = document.getElementById('error-text');
-const walletInfo = document.getElementById('wallet-info');
+// DOM refs
+const walletSection = document.getElementById("wallet-section")
+const statusSection = document.getElementById("status-section")
+const errorSection = document.getElementById("error-section")
+const successSection = document.getElementById("success-section")
+const disconnectBtn = document.getElementById("disconnect-btn")
+const retryBtn = document.getElementById("retry-btn")
+const enterStoreBtn = document.getElementById("enter-store-btn")
+const statusText = document.getElementById("status-text")
+const errorText = document.getElementById("error-text")
+const walletInfo = document.getElementById("wallet-info")
 
-let currentWalletAddress = null;
+let currentWalletAddress = null
 
 // Event listeners
-disconnectBtn?.addEventListener('click', disconnectWallet);
-retryBtn?.addEventListener('click', () => {
-    resetToWalletSection();
-    modal.open();
-});
-enterStoreBtn?.addEventListener('click', () => window.location.href = CONFIG.STORE_URL);
+disconnectBtn?.addEventListener("click", disconnectWallet)
+retryBtn?.addEventListener("click", () => {
+  resetToWalletSection()
+  modal.open()
+})
+enterStoreBtn?.addEventListener("click", () => window.location.href = CONFIG.STORE_URL)
 
-// Check existing session on load
-window.addEventListener('load', () => {
-    console.log('Page loaded, checking session...')
-    if (hasValidSession()) {
-        showSuccess();
-    }
-});
+// Session check
+window.addEventListener("load", () => {
+  if (hasValidSession()) showSuccess()
+})
 
-// Listen to AppKit state changes
+// Subscribe to AppKit state
 modal.subscribeState((state) => {
-    console.log('AppKit state changed:', state);
-    
-    // Check if wallet is connected
-    if (state.selectedNetworkId && modal.getAccount()?.address) {
-        const address = modal.getAccount().address;
-        if (address && address !== currentWalletAddress) {
-            handleWalletConnection(address);
-        }
-    }
-    
-    // Handle disconnection
-    if (!modal.getAccount()?.address && currentWalletAddress) {
-        currentWalletAddress = null;
-        resetWalletDisplay();
-        resetToWalletSection();
-    }
-});
+  console.log("AppKit state changed:", state)
+  if (state.selectedNetworkId && modal.getAccount()?.address) {
+    const address = modal.getAccount().address
+    if (address && address !== currentWalletAddress) handleWalletConnection(address)
+  }
+  if (!modal.getAccount()?.address && currentWalletAddress) {
+    currentWalletAddress = null
+    resetWalletDisplay()
+    resetToWalletSection()
+  }
+})
 
 async function handleWalletConnection(walletAddress) {
-    if (!walletAddress) return;
-    
-    currentWalletAddress = walletAddress;
-    
-    // Show wallet info and disconnect button
-    const shortAddress = `${walletAddress.substring(0, 6)}...${walletAddress.substring(38)}`;
-    walletInfo.textContent = `Connected: ${shortAddress}`;
-    walletInfo.classList.remove('hidden');
-    disconnectBtn.classList.remove('hidden');
+  if (!walletAddress) return
+  currentWalletAddress = walletAddress
+  const shortAddress = `${walletAddress.substring(0, 6)}...${walletAddress.substring(38)}`
+  walletInfo.textContent = `Connected: ${shortAddress}`
+  walletInfo.classList.remove("hidden")
+  disconnectBtn.classList.remove("hidden")
+  showStatus("Connected! Checking network...")
 
-    showStatus("Connected! Checking network...");
-
-    // Check if we're on Base network
-    const currentChain = modal.getChainId();
-    console.log('Current chain:', currentChain, 'Expected:', CONFIG.BASE_CHAIN_ID);
-    
-    if (currentChain !== CONFIG.BASE_CHAIN_ID) {
-        showStatus("Please switch to Base network...");
-        try {
-            await modal.switchNetwork(CONFIG.BASE_CHAIN_ID);
-        } catch (error) {
-            console.error('Network switch error:', error);
-            showError("Please manually switch to Base network and try again.");
-            return;
-        }
+  const currentChain = modal.getChainId()
+  if (currentChain !== CONFIG.BASE_CHAIN_ID) {
+    showStatus("Please switch to Base network...")
+    try {
+      await modal.switchNetwork(CONFIG.BASE_CHAIN_ID)
+    } catch (err) {
+      console.error("Network switch error:", err)
+      showError("Please manually switch to Base network and try again.")
+      return
     }
+  }
 
-    showStatus("Verifying NFT ownership...");
-    console.log('Checking wallet:', walletAddress);
-    console.log('Contract address:', CONFIG.NFT_CONTRACT_ADDRESS);
-    await checkNFTOwnership(walletAddress);
+  showStatus("Verifying NFT ownership...")
+  await checkNFTOwnership(walletAddress)
 }
 
 function disconnectWallet() {
-    try {
-        localStorage.removeItem('nft_verification');
-    } catch (e) {
-        console.log('LocalStorage not available');
-    }
-    
-    modal.disconnect();
-    currentWalletAddress = null;
-    resetWalletDisplay();
-    resetToWalletSection();
+  try { localStorage.removeItem("nft_verification") } catch {}
+  modal.disconnect()
+  currentWalletAddress = null
+  resetWalletDisplay()
+  resetToWalletSection()
 }
 
 function resetWalletDisplay() {
-    walletInfo.classList.add('hidden');
-    disconnectBtn.classList.add('hidden');
+  walletInfo.classList.add("hidden")
+  disconnectBtn.classList.add("hidden")
 }
 
 async function checkNFTOwnership(walletAddress) {
-    try {
-        // Use Base RPC to check NFT balance
-        const rpcUrl = 'https://mainnet.base.org';
-        
-        // Encode the function call for balanceOf(address)
-        const functionSelector = '0x70a08231'; // balanceOf(address)
-        const paddedAddress = walletAddress.slice(2).padStart(64, '0');
-        const data = functionSelector + paddedAddress;
+  try {
+    const rpcUrl = "https://mainnet.base.org"
+    const functionSelector = "0x70a08231"
+    const paddedAddress = walletAddress.slice(2).padStart(64, "0")
+    const data = functionSelector + paddedAddress
 
-        console.log('Making RPC call to:', rpcUrl);
-        console.log('Contract:', CONFIG.NFT_CONTRACT_ADDRESS);
-        console.log('Wallet:', walletAddress);
+    const response = await fetch(rpcUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        method: "eth_call",
+        params: [{ to: CONFIG.NFT_CONTRACT_ADDRESS, data }, "latest"],
+        id: 1
+      })
+    })
 
-        const response = await fetch(rpcUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                jsonrpc: '2.0',
-                method: 'eth_call',
-                params: [{
-                    to: CONFIG.NFT_CONTRACT_ADDRESS,
-                    data: data
-                }, 'latest'],
-                id: 1
-            })
-        });
+    const result = await response.json()
+    if (result.error) throw new Error(result.error.message)
 
-        const result = await response.json();
-        console.log('RPC response:', result);
-        
-        if (result.error) {
-            throw new Error(result.error.message);
-        }
-
-        // Parse the hex result to check if balance > 0
-        const balance = parseInt(result.result, 16);
-        console.log('NFT balance:', balance);
-
-        if (balance > 0) {
-            const verification = {
-                walletAddress,
-                timestamp: Date.now(),
-                expiresAt: Date.now() + (CONFIG.SESSION_DURATION * 60 * 60 * 1000)
-            };
-            
-            try {
-                localStorage.setItem('nft_verification', JSON.stringify(verification));
-            } catch (e) {
-                console.log('LocalStorage not available, but NFT verified');
-            }
-            
-            showSuccess();
-        } else {
-            showError("No King of Apes NFT found in your wallet.");
-        }
-    } catch (error) {
-        console.error('NFT verification error:', error);
-        showError(`Failed to verify NFT ownership: ${error.message}`);
+    const balance = parseInt(result.result, 16)
+    if (balance > 0) {
+      const verification = {
+        walletAddress,
+        timestamp: Date.now(),
+        expiresAt: Date.now() + (CONFIG.SESSION_DURATION * 60 * 60 * 1000)
+      }
+      try { localStorage.setItem("nft_verification", JSON.stringify(verification)) } catch {}
+      showSuccess()
+    } else {
+      showError("No King of Apes NFT found in your wallet.")
     }
+  } catch (err) {
+    console.error("NFT verification error:", err)
+    showError(`Failed to verify NFT ownership: ${err.message}`)
+  }
 }
 
 function hasValidSession() {
-    try {
-        const stored = localStorage.getItem('nft_verification');
-        if (!stored) return false;
-
-        const verification = JSON.parse(stored);
-        if (Date.now() > verification.expiresAt) {
-            localStorage.removeItem('nft_verification');
-            return false;
-        }
-        return true;
-    } catch {
-        return false;
+  try {
+    const stored = localStorage.getItem("nft_verification")
+    if (!stored) return false
+    const verification = JSON.parse(stored)
+    if (Date.now() > verification.expiresAt) {
+      localStorage.removeItem("nft_verification")
+      return false
     }
+    return true
+  } catch { return false }
 }
 
 function showSection(activeSection) {
-    [walletSection, statusSection, errorSection, successSection].forEach(section => {
-        section?.classList.add('hidden');
-    });
-    activeSection?.classList.remove('hidden');
+  [walletSection, statusSection, errorSection, successSection].forEach(s => s?.classList.add("hidden"))
+  activeSection?.classList.remove("hidden")
 }
-
-function resetToWalletSection() {
-    showSection(walletSection);
-}
-
-function showStatus(message) {
-    statusText.textContent = message;
-    showSection(statusSection);
-}
-
-function showError(message) {
-    errorText.textContent = message;
-    showSection(errorSection);
-}
-
+function resetToWalletSection() { showSection(walletSection) }
+function showStatus(msg) { statusText.textContent = msg; showSection(statusSection) }
+function showError(msg) { errorText.textContent = msg; showSection(errorSection) }
 function showSuccess() {
-    showSection(successSection);
-    setTimeout(() => window.location.href = CONFIG.STORE_URL, 3000);
+  showSection(successSection)
+  setTimeout(() => window.location.href = CONFIG.STORE_URL, 3000)
 }
+
