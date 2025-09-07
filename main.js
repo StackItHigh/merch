@@ -1,8 +1,11 @@
 console.log('JavaScript file loaded!')
 
-// Try jsdelivr CDN - better CORS support
-import { createAppKit } from 'https://cdn.jsdelivr.net/npm/@reown/appkit@1.7.0/dist/esm/index.js'
-import { WagmiAdapter } from 'https://cdn.jsdelivr.net/npm/@reown/appkit-adapter-wagmi@1.7.0/dist/esm/index.js'
+// Use the import map defined in HTML
+import { createAppKit } from '@reown/appkit'
+import { mainnet, base } from '@reown/appkit/networks'
+import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
+
+console.log('Imports successful!')
 
 // King of Apes Configuration
 const CONFIG = {
@@ -15,23 +18,8 @@ const CONFIG = {
 // 1. Get project ID from Reown Dashboard
 const projectId = '916c2c0116b80bc0aa50ad643876189b'
 
-// 2. Define networks manually since CDN networks might be broken
-const networks = [
-    {
-        id: 8453,
-        name: 'Base',
-        nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-        rpcUrls: { default: { http: ['https://mainnet.base.org'] } },
-        blockExplorers: { default: { name: 'BaseScan', url: 'https://basescan.org' } }
-    },
-    {
-        id: 1,
-        name: 'Ethereum',
-        nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-        rpcUrls: { default: { http: ['https://cloudflare-eth.com'] } },
-        blockExplorers: { default: { name: 'Etherscan', url: 'https://etherscan.io' } }
-    }
-]
+// 2. Set the networks - Base first since your NFT is on Base
+const networks = [base, mainnet]
 
 // 3. Set up Wagmi adapter
 const wagmiAdapter = new WagmiAdapter({
