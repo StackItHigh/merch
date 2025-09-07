@@ -1,0 +1,24 @@
+{
+  "name": "koagate",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@reown/appkit": "^1.8.2",
+    "@reown/appkit-adapter-wagmi": "^1.8.2",
+    "viem": "^2.37.4",
+    "wagmi": "^2.16.9"
+  },
+  "devDependencies": {
+    "vite": "^7.1.4"
+  }
+}

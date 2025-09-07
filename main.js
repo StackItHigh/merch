@@ -1,11 +1,12 @@
-// ✅ Fix missing peer dependencies
-import "https://esm.sh/wagmi@2.5.7?bundle"
-import "https://esm.sh/viem@2.9.8?bundle"
+// ✅ Wagmi + Viem (installed via npm)
+import { createConfig } from 'wagmi'
+import { http } from 'viem'
 
-// ✅ Reown AppKit & Wagmi adapter (with alias for @wagmi/connectors)
-import { createAppKit } from "https://esm.sh/@reown/appkit@1.7.0?bundle&alias=@wagmi/connectors=wagmi"
-import { mainnet, base } from "https://esm.sh/@reown/appkit@1.7.0/networks?bundle&alias=@wagmi/connectors=wagmi"
-import { WagmiAdapter } from "https://esm.sh/@reown/appkit-adapter-wagmi@1.7.0?bundle&alias=@wagmi/connectors=wagmi"
+// ✅ Reown AppKit & Wagmi adapter
+import { createAppKit } from '@reown/appkit'
+import { mainnet, base } from '@reown/appkit/networks'
+import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
+
 
 // King of Apes Configuration
 const CONFIG = {
@@ -245,4 +246,3 @@ function showSuccess() {
     showSection(successSection);
     setTimeout(() => window.location.href = CONFIG.STORE_URL, 3000);
 }
-
