@@ -32,7 +32,7 @@ export const wagmiConfig = wagmiAdapter.wagmiConfig
 
 // 2. Metadata - dynamically set URL based on environment
 const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-const baseUrl = isDevelopment ? window.location.origin : "https://merch-blond-three.vercel.app";
+const baseUrl = isDevelopment ? window.location.origin : "https://vip.kingofapes.shop";
 
 const metadata = {
     name: "King of Apes VIP Gate",
