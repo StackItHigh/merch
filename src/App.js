@@ -15,6 +15,9 @@ const CONFIG = {
   PROJECT_ID: "916c2c0116b80bc0aa50ad643876189b"
 };
 
+// Fallback logo SVG
+const FALLBACK_LOGO = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Ccircle cx='60' cy='60' r='58' fill='%23FFD700' stroke='%23FFA500' stroke-width='4'/%3E%3Ctext x='60' y='50' text-anchor='middle' font-family='Arial, sans-serif' font-size='16' font-weight='bold' fill='%231a1a1a'%3EKING OF%3C/text%3E%3Ctext x='60' y='75' text-anchor='middle' font-family='Arial, sans-serif' font-size='16' font-weight='bold' fill='%231a1a1a'%3EAPES%3C/text%3E%3C/svg%3E";
+
 // Setup Wagmi adapter
 const wagmiAdapter = new WagmiAdapter({
   projectId: CONFIG.PROJECT_ID,
@@ -46,6 +49,22 @@ const modal = createAppKit({
 });
 
 const queryClient = new QueryClient();
+
+// Logo component with fallback
+function KOALogo({ className }) {
+  const handleImageError = (e) => {
+    e.target.src = FALLBACK_LOGO;
+  };
+
+  return (
+    <img 
+      src="https://merch-blond-three.vercel.app/koanft.png" 
+      alt="King of Apes" 
+      className={className}
+      onError={handleImageError}
+    />
+  );
+}
 
 function KOAApp() {
   const [walletAddress, setWalletAddress] = useState('');
@@ -212,11 +231,7 @@ function KOAApp() {
 
   const renderConnectScreen = () => (
     <div className="screen">
-      <img 
-        src="https://merch-blond-three.vercel.app/koanft.png" 
-        alt="King of Apes" 
-        className="logo"
-      />
+      <KOALogo className="logo" />
       <h1 className="title">King of Apes</h1>
       <h2 className="subtitle">VIP Gate</h2>
       <p className="description">
@@ -236,11 +251,7 @@ function KOAApp() {
 
   const renderVerifyScreen = () => (
     <div className="screen">
-      <img 
-        src="https://merch-blond-three.vercel.app/koanft.png" 
-        alt="King of Apes" 
-        className="logo"
-      />
+      <KOALogo className="logo" />
       <h1 className="title">Wallet Connected</h1>
       <div className="wallet-address">
         {`${walletAddress.substring(0, 6)}...${walletAddress.substring(38)}`}
@@ -267,11 +278,7 @@ function KOAApp() {
 
   const renderSuccessScreen = () => (
     <div className="screen">
-      <img 
-        src="https://merch-blond-three.vercel.app/koanft.png" 
-        alt="King of Apes" 
-        className="logo"
-      />
+      <KOALogo className="logo" />
       <h1 className="success-title">Welcome, King of Apes holder!</h1>
       <p className="success-subtitle">
         You own {nftBalance} King of Apes NFT{nftBalance !== 1 ? 's' : ''}
