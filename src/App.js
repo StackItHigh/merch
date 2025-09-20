@@ -15,9 +15,6 @@ const CONFIG = {
   PROJECT_ID: "916c2c0116b80bc0aa50ad643876189b"
 };
 
-// Fallback logo SVG
-const FALLBACK_LOGO = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Ccircle cx='60' cy='60' r='58' fill='%23FFD700' stroke='%23FFA500' stroke-width='4'/%3E%3Ctext x='60' y='50' text-anchor='middle' font-family='Arial, sans-serif' font-size='16' font-weight='bold' fill='%231a1a1a'%3EKING OF%3C/text%3E%3Ctext x='60' y='75' text-anchor='middle' font-family='Arial, sans-serif' font-size='16' font-weight='bold' fill='%231a1a1a'%3EAPES%3C/text%3E%3C/svg%3E";
-
 // Setup Wagmi adapter
 const wagmiAdapter = new WagmiAdapter({
   projectId: CONFIG.PROJECT_ID,
@@ -32,7 +29,7 @@ const modal = createAppKit({
     name: "King of Apes VIP Gate",
     description: "NFT-gated access to King of Apes store",
     url: "https://kingofapes.shop",
-    icons: ["https://merch-blond-three.vercel.app/koanft.png"],
+    icons: ["/koanft.png"],
     redirect: {
       native: "https://kingofapes.shop",
       universal: "https://kingofapes.shop"
@@ -50,18 +47,13 @@ const modal = createAppKit({
 
 const queryClient = new QueryClient();
 
-// Logo component with fallback
+// Logo component - using local image
 function KOALogo({ className }) {
-  const handleImageError = (e) => {
-    e.target.src = FALLBACK_LOGO;
-  };
-
   return (
     <img 
-      src="https://merch-blond-three.vercel.app/koanft.png" 
+      src="/koanft.png" 
       alt="King of Apes" 
       className={className}
-      onError={handleImageError}
     />
   );
 }
