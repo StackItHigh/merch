@@ -40,7 +40,7 @@ body {
 }
 
 .logo {
-  width: 350px;
+  width: 450px;
   height: auto; /* Let height adjust to maintain aspect ratio */
   margin: 0 auto 50px;
   display: block;
@@ -63,7 +63,7 @@ body {
 
 .description {
   font-family: 'Chewy', cursive;
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   color: #ffffff;
   line-height: 1.4;
   margin-bottom: 50px;
@@ -87,7 +87,7 @@ body {
   border: none;
   padding: 18px 45px;
   border-radius: 25px;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   font-weight: normal;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -187,7 +187,7 @@ body {
 
 .success-subtitle {
   font-family: 'Chewy', cursive;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   color: #cccccc;
   margin-bottom: 20px;
   line-height: 1.5;
