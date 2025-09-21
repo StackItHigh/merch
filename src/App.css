@@ -40,7 +40,7 @@ body {
 }
 
 .logo {
-  width: 300px;
+  width: 500px;
   height: auto; /* Let height adjust to maintain aspect ratio */
   margin: 0 auto 50px;
   display: block;
