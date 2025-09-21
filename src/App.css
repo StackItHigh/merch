@@ -40,34 +40,25 @@ body {
 }
 
 .logo {
-  width: 300px;
+  width: 350px;
   height: auto; /* Let height adjust to maintain aspect ratio */
   margin: 0 auto 50px;
   display: block;
   border: none;
+  background: transparent; /* Ensure no background */
   /* Gold glow effect */
-  box-shadow: 
-    0 0 20px rgba(255, 215, 0, 0.8),
-    0 0 40px rgba(255, 215, 0, 0.6),
-    0 0 60px rgba(255, 215, 0, 0.4),
-    0 0 80px rgba(255, 215, 0, 0.2);
+  filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8))
+          drop-shadow(0 0 40px rgba(255, 215, 0, 0.6))
+          drop-shadow(0 0 60px rgba(255, 215, 0, 0.4));
 }
 
+/* Hide title and subtitle - remove KING OF APES and VIP GATE */
 .title {
-  font-family: 'Chewy', cursive;
-  font-size: 3.5rem;
-  font-weight: normal;
-  color: #FFD700;
-  margin-bottom: 10px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  display: none;
 }
 
 .subtitle {
-  font-family: 'Chewy', cursive;
-  font-size: 2.2rem;
-  color: #ffffff;
-  margin-bottom: 30px;
-  font-weight: normal;
+  display: none;
 }
 
 .description {
@@ -237,11 +228,11 @@ body {
     width: 220px;
     height: auto; /* Let height adjust naturally */
     margin-bottom: 40px;
-    /* Smaller glow on mobile */
-    box-shadow: 
-      0 0 15px rgba(255, 215, 0, 0.8),
-      0 0 30px rgba(255, 215, 0, 0.6),
-      0 0 45px rgba(255, 215, 0, 0.4);
+    background: transparent; /* Ensure no background on mobile */
+    /* Smaller glow on mobile using filter instead of box-shadow */
+    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.8))
+            drop-shadow(0 0 30px rgba(255, 215, 0, 0.6))
+            drop-shadow(0 0 45px rgba(255, 215, 0, 0.4));
   }
   
   .connect-button,
