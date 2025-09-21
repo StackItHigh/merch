@@ -178,7 +178,7 @@ body {
 
 .success-title {
   font-family: 'Chewy', cursive;
-  font-size: 2.5rem;
+  font-size: 4.0rem;
   font-weight: normal;
   color: #4CAF50;
   margin-bottom: 15px;
@@ -187,7 +187,7 @@ body {
 
 .success-subtitle {
   font-family: 'Chewy', cursive;
-  font-size: 1.2rem;
+  font-size: 2.2rem;
   color: #cccccc;
   margin-bottom: 20px;
   line-height: 1.5;
