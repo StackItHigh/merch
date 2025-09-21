@@ -40,7 +40,7 @@ body {
 }
 
 .logo {
-  width: 450px;
+  width: 300px;
   height: auto; /* Let height adjust to maintain aspect ratio */
   margin: 0 auto 50px;
   display: block;
@@ -63,7 +63,7 @@ body {
 
 .description {
   font-family: 'Chewy', cursive;
-  font-size: 1.6rem;
+  font-size: 1.8rem;
   color: #ffffff;
   line-height: 1.4;
   margin-bottom: 50px;
@@ -87,7 +87,7 @@ body {
   border: none;
   padding: 18px 45px;
   border-radius: 25px;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   font-weight: normal;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -178,7 +178,7 @@ body {
 
 .success-title {
   font-family: 'Chewy', cursive;
-  font-size: 1.2rem;
+  font-size: 2.5rem;
   font-weight: normal;
   color: #4CAF50;
   margin-bottom: 15px;
@@ -187,7 +187,7 @@ body {
 
 .success-subtitle {
   font-family: 'Chewy', cursive;
-  font-size: 2.2rem;
+  font-size: 0.65rem; /* 50% smaller than previous 1.3rem */
   color: #cccccc;
   margin-bottom: 20px;
   line-height: 1.5;
@@ -204,19 +204,45 @@ body {
   font-weight: normal;
 }
 
+/* TYPEWRITER EFFECT STYLES */
+.typewriter-container {
+  font-family: 'Chewy', cursive;
+  font-size: 2.9rem; /* 60% larger than previous 1.8rem */
+  color: #FFD700;
+  margin-bottom: 30px;
+  min-height: 5.8rem; /* Increased for larger text */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.typewriter-text {
+  border-right: 2px solid #FFD700;
+  padding-right: 2px;
+  animation: blink-cursor 1s infinite;
+}
+
+.typewriter-text.finished {
+  border-right: none;
+  animation: none;
+}
+
+@keyframes blink-cursor {
+  0%, 50% {
+    border-color: #FFD700;
+  }
+  51%, 100% {
+    border-color: transparent;
+  }
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .screen {
     padding: 30px 20px;
     margin: 10px;
-  }
-  
-  .title {
-    font-size: 2.5rem;
-  }
-  
-  .subtitle {
-    font-size: 1.8rem;
   }
   
   .description {
@@ -242,6 +268,13 @@ body {
     margin: 15px auto;
     max-width: 300px;
     width: 100%;
+  }
+
+  /* Mobile typewriter styles */
+  .typewriter-container {
+    font-size: 2.2rem; /* 60% larger than previous mobile size */
+    min-height: 4.4rem;
+    padding: 0 10px;
   }
 }
 
