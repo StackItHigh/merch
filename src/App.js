@@ -75,31 +75,26 @@ function KOAApp() {
 
   // ONLY ADDITION: Typewriter effect - runs when success screen is shown
   useEffect(() => {
-    if (currentStep === 'success' && hasNFT && !showTypewriter) {
+    if (currentStep === 'success' && hasNFT) {
       setShowTypewriter(true);
       setDisplayText('');
       setIsTypingComplete(false);
       
-      // Start typing after a short delay
-      const startDelay = setTimeout(() => {
-        let index = 0;
-        
-        const typeTimer = setInterval(() => {
-          if (index < welcomeMessage.length) {
-            setDisplayText((prev) => prev + welcomeMessage.charAt(index));
-            index++;
-          } else {
-            setIsTypingComplete(true);
-            clearInterval(typeTimer);
-          }
-        }, 60); // 60ms per character
-        
-        return () => clearInterval(typeTimer);
-      }, 500);
+      let index = 0;
       
-      return () => clearTimeout(startDelay);
+      const typeTimer = setInterval(() => {
+        if (index < welcomeMessage.length) {
+          setDisplayText(welcomeMessage.substring(0, index + 1));
+          index++;
+        } else {
+          setIsTypingComplete(true);
+          clearInterval(typeTimer);
+        }
+      }, 80); // 80ms per character
+      
+      return () => clearInterval(typeTimer);
     }
-  }, [currentStep, hasNFT, showTypewriter, welcomeMessage]);
+  }, [currentStep, hasNFT]);
 
   useEffect(() => {
     checkExistingSession();
@@ -312,7 +307,7 @@ function KOAApp() {
       <KOALogo className="logo" />
       
       {/* ONLY CHANGE: Replace the static welcome title with typewriter effect */}
-      {showTypewriter ? (
+      {showTypewriter && currentStep === 'success' ? (
         <div className="typewriter-container">
           <span className={`typewriter-text ${isTypingComplete ? 'finished' : ''}`}>
             {displayText}
