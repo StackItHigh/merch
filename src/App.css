@@ -1,3 +1,6 @@
+/* Import Chewy font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Chewy&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -5,12 +8,12 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Chewy', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #1a1a1a;
+  background-color: #000000; /* Plain black background */
   color: #ffffff;
 }
 
@@ -19,73 +22,83 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  background: #000000; /* Plain black background */
   padding: 20px;
 }
 
 .screen {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  /* Remove all box styling - clean and minimal */
+  background: transparent;
+  backdrop-filter: none;
+  border: none;
+  border-radius: 0;
   padding: 40px;
   text-align: center;
-  max-width: 500px;
+  max-width: 800px;
   width: 100%;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: none;
 }
 
 .logo {
-  width: 120px;
-  height: 120px;
-  border-radius: 60px;
-  margin: 0 auto 30px;
+  width: 300px;
+  height: 300px;
+  border-radius: 150px;
+  margin: 0 auto 50px;
   display: block;
-  border: 3px solid #FFD700;
-  box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+  border: none;
+  /* Gold glow effect */
+  box-shadow: 
+    0 0 20px rgba(255, 215, 0, 0.8),
+    0 0 40px rgba(255, 215, 0, 0.6),
+    0 0 60px rgba(255, 215, 0, 0.4),
+    0 0 80px rgba(255, 215, 0, 0.2);
 }
 
 .title {
-  font-size: 2.5rem;
-  font-weight: bold;
+  font-family: 'Chewy', cursive;
+  font-size: 3.5rem;
+  font-weight: normal;
   color: #FFD700;
   margin-bottom: 10px;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .subtitle {
-  font-size: 1.8rem;
+  font-family: 'Chewy', cursive;
+  font-size: 2.2rem;
   color: #ffffff;
   margin-bottom: 30px;
-  font-weight: 300;
+  font-weight: normal;
 }
 
 .description {
-  font-size: 1.1rem;
-  color: #cccccc;
-  line-height: 1.6;
-  margin-bottom: 40px;
+  font-family: 'Chewy', cursive;
+  font-size: 1.8rem;
+  color: #ffffff;
+  line-height: 1.4;
+  margin-bottom: 50px;
 }
 
 .wallet-address {
-  font-family: 'Courier New', monospace;
-  font-size: 1rem;
+  font-family: 'Chewy', cursive;
+  font-size: 1.1rem;
   color: #cccccc;
   background: rgba(255, 255, 255, 0.1);
-  padding: 10px 20px;
+  padding: 15px 25px;
   border-radius: 10px;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .connect-button {
+  font-family: 'Chewy', cursive;
   background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-  color: #1a1a1a;
+  color: #000000;
   border: none;
-  padding: 15px 40px;
+  padding: 18px 45px;
   border-radius: 25px;
-  font-size: 1.1rem;
-  font-weight: bold;
+  font-size: 1.4rem;
+  font-weight: normal;
   cursor: pointer;
   transition: all 0.3s ease;
   margin-bottom: 20px;
@@ -94,21 +107,22 @@ body {
 
 .connect-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
 }
 
 .verify-button {
-  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-  color: white;
+  font-family: 'Chewy', cursive;
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  color: #000000;
   border: none;
-  padding: 15px 40px;
+  padding: 18px 45px;
   border-radius: 25px;
-  font-size: 1.1rem;
-  font-weight: bold;
+  font-size: 1.4rem;
+  font-weight: normal;
   cursor: pointer;
   transition: all 0.3s ease;
   margin-bottom: 15px;
-  box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+  box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
   display: block;
   width: 100%;
   max-width: 300px;
@@ -117,7 +131,7 @@ body {
 
 .verify-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
 }
 
 .verify-button:disabled {
@@ -126,13 +140,14 @@ body {
 }
 
 .store-button {
+  font-family: 'Chewy', cursive;
   background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-  color: #1a1a1a;
+  color: #000000;
   border: none;
-  padding: 15px 40px;
+  padding: 18px 45px;
   border-radius: 25px;
-  font-size: 1.1rem;
-  font-weight: bold;
+  font-size: 1.4rem;
+  font-weight: normal;
   cursor: pointer;
   transition: all 0.3s ease;
   margin-bottom: 15px;
@@ -145,17 +160,18 @@ body {
 
 .store-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
 }
 
 .disconnect-button {
+  font-family: 'Chewy', cursive;
   background: transparent;
   color: #FF6B6B;
   border: 2px solid #FF6B6B;
   padding: 12px 30px;
   border-radius: 25px;
-  font-size: 1rem;
-  font-weight: bold;
+  font-size: 1.1rem;
+  font-weight: normal;
   cursor: pointer;
   transition: all 0.3s ease;
   display: block;
@@ -171,28 +187,31 @@ body {
 }
 
 .success-title {
-  font-size: 2rem;
-  font-weight: bold;
+  font-family: 'Chewy', cursive;
+  font-size: 2.5rem;
+  font-weight: normal;
   color: #4CAF50;
   margin-bottom: 15px;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .success-subtitle {
-  font-size: 1.1rem;
+  font-family: 'Chewy', cursive;
+  font-size: 1.3rem;
   color: #cccccc;
   margin-bottom: 20px;
   line-height: 1.5;
 }
 
 .error {
+  font-family: 'Chewy', cursive;
   background: rgba(255, 107, 107, 0.1);
   border: 1px solid #FF6B6B;
   color: #FF6B6B;
   padding: 15px;
   border-radius: 10px;
   margin-top: 20px;
-  font-weight: 500;
+  font-weight: normal;
 }
 
 /* Responsive design */
@@ -203,16 +222,37 @@ body {
   }
   
   .title {
-    font-size: 2rem;
+    font-size: 2.5rem;
   }
   
   .subtitle {
+    font-size: 1.8rem;
+  }
+  
+  .description {
     font-size: 1.5rem;
+    margin-bottom: 40px;
   }
   
   .logo {
-    width: 100px;
-    height: 100px;
+    width: 220px;
+    height: 220px;
+    border-radius: 110px;
+    margin-bottom: 40px;
+    /* Smaller glow on mobile */
+    box-shadow: 
+      0 0 15px rgba(255, 215, 0, 0.8),
+      0 0 30px rgba(255, 215, 0, 0.6),
+      0 0 45px rgba(255, 215, 0, 0.4);
+  }
+  
+  .connect-button,
+  .verify-button,
+  .store-button {
+    display: block;
+    margin: 15px auto;
+    max-width: 300px;
+    width: 100%;
   }
 }
 
@@ -238,7 +278,7 @@ appkit-modal::part(overlay) {
   width: 16px;
   height: 16px;
   margin-left: 10px;
-  border: 2px solid #ffffff;
+  border: 2px solid #000000;
   border-radius: 50%;
   border-top-color: transparent;
   animation: spin 1s linear infinite;
