@@ -66,6 +66,41 @@ function KOAApp() {
   const [currentStep, setCurrentStep] = useState('connect');
   const [error, setError] = useState('');
 
+  // ONLY ADDITION: Typewriter effect states
+  const [displayText, setDisplayText] = useState('');
+  const [isTypingComplete, setIsTypingComplete] = useState(false);
+  const [showTypewriter, setShowTypewriter] = useState(false);
+  
+  const welcomeMessage = "Welcome to the KOAClub, you are one of the chosen few. Access is granted.";
+
+  // ONLY ADDITION: Typewriter effect - runs when success screen is shown
+  useEffect(() => {
+    if (currentStep === 'success' && hasNFT && !showTypewriter) {
+      setShowTypewriter(true);
+      setDisplayText('');
+      setIsTypingComplete(false);
+      
+      // Start typing after a short delay
+      const startDelay = setTimeout(() => {
+        let index = 0;
+        
+        const typeTimer = setInterval(() => {
+          if (index < welcomeMessage.length) {
+            setDisplayText((prev) => prev + welcomeMessage.charAt(index));
+            index++;
+          } else {
+            setIsTypingComplete(true);
+            clearInterval(typeTimer);
+          }
+        }, 60); // 60ms per character
+        
+        return () => clearInterval(typeTimer);
+      }, 500);
+      
+      return () => clearTimeout(startDelay);
+    }
+  }, [currentStep, hasNFT, showTypewriter, welcomeMessage]);
+
   useEffect(() => {
     checkExistingSession();
     
@@ -201,6 +236,10 @@ function KOAApp() {
     setNftBalance(0);
     setCurrentStep('connect');
     setError('');
+    // ONLY ADDITION: Reset typewriter states on disconnect
+    setShowTypewriter(false);
+    setDisplayText('');
+    setIsTypingComplete(false);
     modal.disconnect();
   };
 
@@ -271,7 +310,18 @@ function KOAApp() {
   const renderSuccessScreen = () => (
     <div className="screen">
       <KOALogo className="logo" />
-      <h1 className="success-title">Welcome, King of Apes holder!</h1>
+      
+      {/* ONLY CHANGE: Replace the static welcome title with typewriter effect */}
+      {showTypewriter ? (
+        <div className="typewriter-container">
+          <span className={`typewriter-text ${isTypingComplete ? 'finished' : ''}`}>
+            {displayText}
+          </span>
+        </div>
+      ) : (
+        <h1 className="success-title">Welcome, King of Apes holder!</h1>
+      )}
+      
       <p className="success-subtitle">
         You own {nftBalance} King of Apes NFT{nftBalance !== 1 ? 's' : ''}
       </p>
