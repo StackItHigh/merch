@@ -187,7 +187,7 @@ body {
 
 .success-subtitle {
   font-family: 'Chewy', cursive;
-  font-size: 0.65rem; /* 50% smaller than previous 1.3rem */
+  font-size: 0.78rem; /* 20% larger than previous 0.65rem */
   color: #cccccc;
   margin-bottom: 20px;
   line-height: 1.5;
@@ -208,7 +208,7 @@ body {
 .typewriter-container {
   font-family: 'Chewy', cursive;
   font-size: 2.9rem; /* 60% larger than previous 1.8rem */
-  color: #FFD700;
+  color: #0ed000; /* Changed to green */
   margin-bottom: 30px;
   min-height: 5.8rem; /* Increased for larger text */
   display: flex;
@@ -219,7 +219,7 @@ body {
 }
 
 .typewriter-text {
-  border-right: 2px solid #FFD700;
+  border-right: 2px solid #0ed000; /* Changed cursor to green */
   padding-right: 2px;
   animation: blink-cursor 1s infinite;
 }
@@ -231,7 +231,7 @@ body {
 
 @keyframes blink-cursor {
   0%, 50% {
-    border-color: #FFD700;
+    border-color: #0ed000; /* Changed cursor blink to green */
   }
   51%, 100% {
     border-color: transparent;
