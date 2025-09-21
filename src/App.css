@@ -41,8 +41,7 @@ body {
 
 .logo {
   width: 300px;
-  height: 300px;
-  border-radius: 150px;
+  height: auto; /* Let height adjust to maintain aspect ratio */
   margin: 0 auto 50px;
   display: block;
   border: none;
@@ -236,8 +235,7 @@ body {
   
   .logo {
     width: 220px;
-    height: 220px;
-    border-radius: 110px;
+    height: auto; /* Let height adjust naturally */
     margin-bottom: 40px;
     /* Smaller glow on mobile */
     box-shadow: 
