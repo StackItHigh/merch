@@ -8,7 +8,7 @@ import './App.css';
 
 // King of Apes Configuration
 const CONFIG = {
-  NFT_CONTRACT_ADDRESS: "0xF98082c5978B57AdD900E5544fcaE56AdAA871Fa",
+  NFT_CONTRACT_ADDRESS: "0x172470da01aa5526a5a1cfaf4f4941a79f940ff4",
   BASE_CHAIN_ID: 8453,
   STORE_URL: "https://kingofapes.shop",
   SESSION_DURATION: 24,
